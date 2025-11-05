@@ -1,7 +1,7 @@
 {
   "name": "booking-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "- Start:  pm run dev - Health: GET /api/health - Ressourcen: GET/POST /api/resources - Buchungen: GET/POST/PATCH/DELETE /api/bookings",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,6 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
-  }
+    "@prisma/client": "^6.16.3",
+    "express": "^5.1.0",
+    "prisma": "^6.16.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aennaleinn/booking-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aennaleinn/booking-api/issues"
+  },
+  "homepage": "https://github.com/aennaleinn/booking-api#readme"
 }

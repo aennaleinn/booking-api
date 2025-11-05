@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Buchungen</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Buchungen</h1>
+
+  <form id="bookingForm">
+    <input type="number" id="resourceId" placeholder="Ressourcen-ID" required />
+    <input type="text" id="title" placeholder="Titel" required />
+    <input type="datetime-local" id="startAt" required />
+    <input type="datetime-local" id="endAt" required />
+    <input type="text" id="createdBy" placeholder="Erstellt von" required />
+    <button type="submit">Buchen</button>
+  </form>
+
+  <h2>Liste</h2>
+  <ul id="list"></ul>
+
+  <script>
+    function toISOLocal(dtValue) {
+      const d = new Date(dtValue);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
+    }
+
+    async function loadBookings() {
+      const res = await fetch("/api/bookings");
+      const data = await res.json();
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      data.forEach(b => {
+        const li = document.createElement("li");
+        li.textContent = `${b.title} • Ressource ${b.resourceId} • ${new Date(b.startAt).toLocaleString()} – ${new Date(b.endAt).toLocaleString()} • Status: ${b.status}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById("bookingForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const booking = {
+        resourceId: parseInt(document.getElementById("resourceId").value),
+        title: document.getElementById("title").value,
+        startAt: toISOLocal(document.getElementById("startAt").value),
+        endAt: toISOLocal(document.getElementById("endAt").value),
+        createdBy: document.getElementById("createdBy").value
+      };
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({}));
+        alert("Fehler: " + (err.error || res.status));
+      }
+      await loadBookings();
+      e.target.reset();
+    });
+
+    loadBookings();
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+### Health
+GET http://127.0.0.1:8080/api/health
+
+### Ressource anlegen
+POST http://127.0.0.1:8080/api/resources
+Content-Type: application/json
+
+{
+  "name": "Raum A",
+  "location": "EG",
+  "capacity": 8
+}
+
+### Ressourcenliste
+GET http://127.0.0.1:8080/api/resources
+
+### Buchung erstellen
+POST http://127.0.0.1:8080/api/bookings
+Content-Type: application/json
+
+{
+  "resourceId": 1,
+  "title": "Team-Meeting",
+  "startAt": "2025-10-01T09:00:00.000Z",
+  "endAt": "2025-10-01T10:00:00.000Z",
+  "createdBy": "anna"
+}
+
+### Konflikt (soll 409 liefern)
+POST http://127.0.0.1:8080/api/bookings
+Content-Type: application/json
+
+{
+  "resourceId": 1,
+  "title": "Konflikt",
+  "startAt": "2025-10-01T09:30:00.000Z",
+  "endAt": "2025-10-01T10:00:00.000Z",
+  "createdBy": "bob"
+}
+
+### Buchungen anzeigen
+GET http://127.0.0.1:8080/api/bookings
+
+### Buchung stornieren
+DELETE http://127.0.0.1:8080/api/bookings/1

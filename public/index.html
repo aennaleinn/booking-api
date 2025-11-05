@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Raum- & Ressourcenbuchung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b1220; --bg-soft:#0f1629; --card:#121a30; --card-2:#0d1528;
+      --text:#e6eaf2; --muted:#9aa7c7; --border:#1f2a44;
+      --primary:#6aa3ff; --primary-700:#3d7ef0; --accent:#22d3ee;
+      --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
+      --shadow: 0 20px 50px rgba(0,0,0,.45);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Ubuntu,Arial;
+      color:var(--text); background:
+        radial-gradient(1200px 600px at 20% -10%, #15305855 0, transparent 60%),
+        radial-gradient(900px 500px at 120% 0%, #0e2c5850 0, transparent 40%),
+        linear-gradient(180deg, #0a1120, #0a1120 40%, #091024);
+      min-height:100dvh;
+    }
+
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:.9rem 1.2rem; backdrop-filter: blur(8px);
+      background: color-mix(in oklab, #0b1220 80%, #152243 20%);
+      border-bottom:1px solid var(--border);
+    }
+    .brand{ display:flex; align-items:center; gap:.7rem; font-weight:700; letter-spacing:.2px }
+    .brand .logo{
+      width:34px; height:34px; border-radius:10px;
+      background: conic-gradient(from 180deg at 50% 50%, #6aa3ff, #22d3ee, #6aa3ff);
+      display:grid; place-items:center; box-shadow:0 6px 18px rgba(34,211,238,.25);
+    }
+    .brand .logo svg{ width:18px; height:18px; color:#0b1220 }
+
+    .nav{display:flex; gap:.5rem; align-items:center}
+    .btn{
+      background:linear-gradient(180deg,var(--primary),var(--primary-700));
+      color:#061024; border:none; padding:.55rem .9rem; border-radius:10px;
+      font-weight:600; cursor:pointer; box-shadow:0 6px 18px rgba(106,163,255,.25);
+    }
+    .btn:hover{ filter:brightness(1.08) }
+    .btn-ghost{
+      background:transparent; color:var(--text); border:1px solid var(--border); padding:.55rem .9rem; border-radius:10px; cursor:pointer;
+    }
+    .btn-danger{ background:linear-gradient(180deg,#ff7a7a,#ef4444); color:#fff; }
+
+    /* Layout */
+    .container{ max-width:1200px; margin:1.2rem auto; padding:0 1.2rem; display:grid; gap:1.2rem }
+    .dash{ display:grid; gap:1.2rem; grid-template-columns: 320px 1fr }
+    @media (max-width: 980px){ .dash{ grid-template-columns: 1fr } }
+
+    /* Cards */
+    .card{
+      background: linear-gradient(180deg, color-mix(in oklab, var(--card) 94%, #1a2547 6%), var(--card));
+      border:1px solid var(--border); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow);
+    }
+    .card-header{ padding:1rem 1.2rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.6rem }
+    .card-body{ padding:1rem 1.2rem }
+    .section-head{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap }
+
+    /* Forms & lists */
+    .form{ display:grid; gap:.8rem }
+    .field{ display:grid; gap:.35rem }
+    label{ font-size:.9rem; color:var(--muted) }
+    input,select{
+      width:100%; padding:.65rem .7rem; border-radius:10px; outline:none;
+      border:1px solid var(--border); background:var(--card-2); color:var(--text);
+    }
+    .grid{ display:grid; gap:.6rem }
+    .grid-2{ grid-template-columns: 1fr 1fr }
+    @media (max-width: 980px){ .grid-2{ grid-template-columns: 1fr } }
+
+    .list{ list-style:none; margin:0; padding:0; display:grid; gap:.6rem }
+    .item{
+      display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+      padding:.75rem .85rem; border:1px solid var(--border); border-radius:12px; background:var(--bg-soft);
+    }
+    .item-title{ font-weight:700 }
+    .item-sub{ font-size:.9rem; color:var(--muted) }
+    .badge{ padding:.15rem .5rem; border-radius:999px; font-size:.75rem; border:1px solid var(--border); }
+    .badge.ok{ background:#0b3a2a; color:#b6f5d9; border-color:#14553f }
+    .badge.muted{ background:#10182c; color:#b9c7ea; }
+    .hint{ color:var(--muted); font-size:.85rem }
+
+    /* Tabs */
+    .tabs{ display:flex; gap:.4rem; background:var(--bg-soft); padding:.4rem; border-radius:12px; border:1px solid var(--border) }
+    .tab{ padding:.5rem .8rem; border-radius:8px; cursor:pointer; color:var(--muted) }
+    .tab.active{ background:var(--card); color:var(--text); border:1px solid var(--border) }
+
+    /* Dialog */
+    dialog{
+      border:none; border-radius:16px; background:var(--card); color:var(--text);
+      width:min(560px, 92vw); padding:0; box-shadow: var(--shadow); overflow:hidden;
+    }
+    .dlg-head{ padding:1rem 1.2rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between }
+    .dlg-body{ padding:1rem 1.2rem }
+    .dlg-actions{ padding:1rem 1.2rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:.5rem }
+
+    /* Toasts */
+    .toasts{ position:fixed; right:1rem; bottom:1rem; display:grid; gap:.5rem; z-index:100 }
+    .toast{ background:#0e1529; color:#e6eaf2; padding:.65rem .8rem; border:1px solid var(--border); border-radius:10px; box-shadow: var(--shadow) }
+    .toast.ok{ border-color:#155e46 }
+    .toast.err{ border-color:#7f1d1d }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a2 2 0 0 1 2 2v2H4V5a2 2 0 0 1 2-2zm-2 8h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8zm4 2v2h2v-2H8zm4 0v2h2v-2h-2z"/></svg>
+      </div>
+      <span>Raum- & Ressourcenbuchung</span>
+    </div>
+    <nav class="nav">
+      <button id="reloadBtn" class="btn-ghost">Neu laden</button>
+      <button id="newBookingBtn" class="btn">+ Buchung</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="dash">
+      <!-- Sidebar: Räume -->
+      <div class="card">
+        <div class="card-header">
+          <div class="tabs">
+            <button class="tab active" data-tab="rooms">Räume</button>
+            <button class="tab" data-tab="new-room">Neuer Raum</button>
+          </div>
+          <button id="resRefresh" class="btn-ghost">Aktualisieren</button>
+        </div>
+        <div class="card-body" id="roomsTab">
+          <ul id="resList" class="list"></ul>
+        </div>
+        <div class="card-body" id="newRoomTab" hidden>
+          <form id="resourceForm" class="form">
+            <div class="field">
+              <label for="r-name">Name*</label>
+              <input id="r-name" required placeholder="z. B. Raum A" />
+            </div>
+            <div class="grid grid-2">
+              <div class="field">
+                <label for="r-location">Ort</label>
+                <input id="r-location" placeholder="z. B. EG" />
+              </div>
+              <div class="field">
+                <label for="r-capacity">Kapazität</label>
+                <input id="r-capacity" type="number" min="1" placeholder="z. B. 8" />
+              </div>
+            </div>
+            <p class="hint">Name ist Pflicht. Ort/Kapazität optional.</p>
+            <div>
+              <button class="btn" type="submit">Raum anlegen</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Hauptbereich: Buchungen -->
+      <div class="card">
+        <div class="card-header">
+          <div class="section-head">
+            <strong>Übersicht Buchungen</strong>
+          </div>
+          <div class="filters" style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap">
+            <select id="f-resource"><option value="">Alle Ressourcen</option></select>
+            <input id="f-from" type="date" />
+            <input id="f-to" type="date" />
+            <label style="display:inline-flex;align-items:center;gap:.35rem;">
+              <input type="checkbox" id="f-cancelled"> Stornierte zeigen
+            </label>
+            <button id="bkRefresh" class="btn-ghost">Filtern</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul id="bkList" class="list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dialog: Neue Buchung -->
+  <dialog id="bookingDlg">
+    <div class="dlg-head">
+      <strong>Neue Buchung</strong>
+      <button id="dlgClose" class="btn-ghost">Schließen</button>
+    </div>
+    <form id="bookingForm" class="dlg-body form" method="dialog">
+      <div class="field">
+        <label for="b-resource">Ressource*</label>
+        <select id="b-resource" required></select>
+      </div>
+      <div class="field">
+        <label for="b-title">Titel*</label>
+        <input id="b-title" required placeholder="z. B. Team-Meeting" />
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="b-start">Start*</label>
+          <input id="b-start" type="datetime-local" required />
+        </div>
+        <div class="field">
+          <label for="b-end">Ende*</label>
+          <input id="b-end" type="datetime-local" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="b-user">Erstellt von*</label>
+        <input id="b-user" required placeholder="Dein Name" />
+      </div>
+      <p class="hint">Doppelbuchungen werden automatisch verhindert.</p>
+      <div class="dlg-actions">
+        <button type="button" class="btn-ghost" id="dlgCancel">Abbrechen</button>
+        <button class="btn" type="submit">Buchen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts"></div>
+  <script src="app.js"></script>
+</body>
+</html>

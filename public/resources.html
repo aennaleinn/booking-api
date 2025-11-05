@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Räume</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Räume</h1>
+  <form id="resourceForm">
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="text" id="location" placeholder="Ort" />
+    <input type="number" id="capacity" placeholder="Kapazität" />
+    <button type="submit">Raum anlegen</button>
+  </form>
+
+  <h2>Liste</h2>
+  <ul id="list"></ul>
+
+  <script>
+    async function loadResources() {
+      const res = await fetch("/api/resources");
+      const data = await res.json();
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      data.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `${r.name} (${r.location || "?"}, ${r.capacity || "-"} Plätze)`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById("resourceForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const location = document.getElementById("location").value;
+      const capacity = parseInt(document.getElementById("capacity").value);
+      await fetch("/api/resources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, location, capacity })
+      });
+      loadResources();
+      e.target.reset();
+    });
+
+    loadResources();
+  </script>
+</body>
+</html>
